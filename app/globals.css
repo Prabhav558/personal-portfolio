@@ -293,6 +293,12 @@ html.stage-lock body {
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  /* Safari and Firefox only cull the back of a plane that has a 3D transform of its own; the front
+     face had none, so once its leaf had turned over, its mirrored print showed through the page
+     on the other side. A hair of lift gives it one (translateZ(0) is an identity and gets dropped),
+     and puts the front just above the back, so a turned leaf shows its back on top even if culling
+     were skipped. The back face overrides this just below. */
+  transform: translateZ(0.05px);
   overflow: hidden;
   pointer-events: none;
 }
@@ -301,6 +307,13 @@ html.stage-lock body {
 }
 .face--back {
   transform: rotateY(180deg);
+}
+/* WebKit also gives composited descendants (the paper, its overlays, the cover lettering) their own
+   layer that ignores the face's culling, so the one level under each face is told to hide as well */
+.face > *,
+.paper > * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ── boards (cloth) ── */
@@ -635,9 +648,14 @@ html.stage-lock body {
   overflow: hidden;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  transform: translateZ(0.05px); /* as .face: without a 3D transform of its own it is not culled in Safari/Firefox */
 }
 .sface--back {
   transform: rotateY(180deg);
+}
+.sface > * {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 .spage {
   position: absolute;
